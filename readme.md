@@ -1,3 +1,7 @@
+fork了这个博客的代码:
+http://www.cnblogs.com/fengfenggirl/p/zhihu_shenhuifu.html
+
+
 知乎神回复
 =
 <table><tr><td>爬取了知乎2万个问题，选择最有可能是神回复的前1000个<br>计算公式：score =vote / (5+answer_len^2/10) </table></tr></td>
