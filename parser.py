@@ -110,13 +110,20 @@ def getQuestions(start,offset='20'):
     return questions,lastId
     
 def craw():
+    # load last-id
+    wf_last = open('lastid.txt', 'r')
+    lastId = wf_last.read()
+    wf_last.close()
+
     wf = open('zhihu.txt','a+')
     domain = 'http://www.zhihu.com/question/'
-   #lastId = '404659437'
-   #lastId = '389059437'
-    lastId = '776488660'
     for i in xrange(10000):
+        # save last-id
+        wf_last = open('lastid.txt', 'w')
+        wf_last.write(lastId)
+        wf_last.close()
         ques,lastId = getQuestions(lastId)
+
         for q in ques:
             try:
                 out = getArticle(domain+q)
@@ -129,7 +136,7 @@ def craw():
                 wf.write(each)
                 wf.write('\t')
             wf.write('\n')
-            raw_input(">\n")
+            raw_input("\n")
     wf.close()
 if __name__ == '__main__':
     craw()
