@@ -66,11 +66,6 @@ def getArticle(url):
     if max_score == 0.0:
         return None
 
-    print ">"
-    print "title :",out[0]
-    print "answer:",out[1]
-    print "vote  :",out[3]
-    print "url   :",out[4]
     return out
 
 def getQuestions(start,offset='20'):
@@ -139,7 +134,11 @@ def craw():
                 wf.write(each)
                 wf.write('\t')
             wf.write('\n')
-            raw_input("\n")
+            raw_input(">")
+            print "title :",out[0]
+            print "answer:",out[1]
+            print "vote  :",out[3]
+            print "url   :",out[4]
     wf.close()
 if __name__ == '__main__':
     craw()
