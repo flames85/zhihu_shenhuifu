@@ -1,4 +1,5 @@
 #!encoding=utf-8
+from __future__ import division
 import gzip
 import cStringIO
 import chardet
@@ -16,7 +17,7 @@ sys.setdefaultencoding("utf-8")
 
 def getPage(url):
     try:
-#time.sleep(1)
+        time.sleep(10)
         web = urllib.urlopen(url)
         page = web.read().decode('UTF-8')
         web.close()
@@ -32,27 +33,46 @@ def getArticle(url):
     page = getPage(url)
     pageSoup = BeautifulSoup(page, "html.parser")
     title = str(pageSoup.title).replace('<title>','').replace('</title>','').strip()
+    # title
+    title = formatStr(title)
+    # all answers
     item = pageSoup.find_all('div',{'class':'zm-item-answer'})
+    # if no answer
     if item is None or len(item) == 0:
         return None
 
-    answer = item[0].find('div',{'class':'zh-summary summary clearfix'}).get_text().strip()
-    
-    tmp = item[0].find('div',{'class':'zm-votebar'})
-    tmp = tmp.find('button',{'class':'up '})
-    vote = tmp.find('span',{'class':'count'}).get_text().strip()
+#print "title:",title
+#print "item size:",len(item)
+    max_score = 0.0
+    max_score_index = 0
+    for i in xrange(len(item)):
+        one_item = item[i]
+        # answer
+        answer = one_item.find('div',{'class':'zh-summary summary clearfix'}).get_text().strip()
+        answer = formatStr(answer)
+        ans_len = len(answer)
+        if ans_len > 100:
+            answer = answer[0:100]
+        # vote
+        tmp = one_item.find('div',{'class':'zm-votebar'})
+        tmp = tmp.find('button',{'class':'up '})
+        vote = tmp.find('span',{'class':'count'}).get_text().strip()
+#        print "vote:",vote
+#        print "ans-len",ans_len
+        # score
+        i_vote = int(vote);
+        score = (i_vote+1) / (5 + ans_len*ans_len/10)
+#print "score",score
+#print "answer:",answer
+        if max_score < score:
+            max_score = score
+            max_score_index = i
+            out = [title, answer, str(ans_len), vote, url]
 
-    answer = formatStr(answer)
-    ans_len = len(answer)
-    if ans_len > 100:
-        answer = answer[0:100]
-    title = formatStr(title)
-    print "title:",title
-    print "answer:",answer
-    print "vote:",vote
-    out = [title, answer, str(ans_len), vote, url]
-    print "out:",out
-
+    print "title :",out[0]
+    print "answer:",out[1]
+    print "vote  :",out[3]
+    print "url   :",out[4]
     return out
 
 def getQuestions(start,offset='20'):
@@ -94,10 +114,10 @@ def getQuestions(start,offset='20'):
 def craw():
     wf = open('zhihu.txt','a+')
     domain = 'http://www.zhihu.com/question/'
-    #lastId = '404659437'
-    lastId = '389059437'
+   #lastId = '404659437'
+   #lastId = '389059437'
+    lastId = '776488660'
     for i in xrange(10000):
-        print i,lastId
         ques,lastId = getQuestions(lastId)
         for q in ques:
             try:
