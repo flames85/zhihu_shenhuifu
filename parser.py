@@ -17,7 +17,6 @@ sys.setdefaultencoding("utf-8")
 
 def getPage(url):
     try:
-        time.sleep(10)
         web = urllib.urlopen(url)
         page = web.read().decode('UTF-8')
         web.close()
@@ -41,10 +40,9 @@ def getArticle(url):
     if item is None or len(item) == 0:
         return None
 
-#print "title:",title
-#print "item size:",len(item)
     max_score = 0.0
     max_score_index = 0
+
     for i in xrange(len(item)):
         one_item = item[i]
         # answer
@@ -57,18 +55,18 @@ def getArticle(url):
         tmp = one_item.find('div',{'class':'zm-votebar'})
         tmp = tmp.find('button',{'class':'up '})
         vote = tmp.find('span',{'class':'count'}).get_text().strip()
-#        print "vote:",vote
-#        print "ans-len",ans_len
         # score
         i_vote = int(vote);
-        score = (i_vote+1) / (5 + ans_len*ans_len/10)
-#print "score",score
-#print "answer:",answer
+        score = (i_vote) / (5 + ans_len*ans_len/10)
         if max_score < score:
             max_score = score
             max_score_index = i
             out = [title, answer, str(ans_len), vote, url]
 
+    if max_score == 0.0:
+        return None
+
+    print ">"
     print "title :",out[0]
     print "answer:",out[1]
     print "vote  :",out[3]
@@ -122,17 +120,16 @@ def craw():
         for q in ques:
             try:
                 out = getArticle(domain+q)
+                if out == None:
+                    continue
             except:
-                continue
-            if out == None:
                 continue
             for j in xrange(len(out)):
                 each = out[j]
-#if j == 1:
-#               each = each.encode('utf-8')
                 wf.write(each)
                 wf.write('\t')
             wf.write('\n')
+            time.sleep(60)
     wf.close()
 if __name__ == '__main__':
     craw()
