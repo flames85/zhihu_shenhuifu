@@ -49,8 +49,8 @@ def getArticle(url):
         answer = one_item.find('div',{'class':'zh-summary summary clearfix'}).get_text().strip()
         answer = formatStr(answer)
         ans_len = len(answer)
-        if ans_len > 100:
-            answer = answer[0:100]
+#if ans_len > 100:
+#            answer = answer[0:100]
         # vote
         tmp = one_item.find('div',{'class':'zm-votebar'})
         tmp = tmp.find('button',{'class':'up '})
