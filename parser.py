@@ -129,7 +129,7 @@ def craw():
                 wf.write(each)
                 wf.write('\t')
             wf.write('\n')
-            time.sleep(60)
+            raw_input(">\n")
     wf.close()
 if __name__ == '__main__':
     craw()
