@@ -111,9 +111,12 @@ def getQuestions(start,offset='20'):
     
 def craw():
     # load last-id
-    wf_last = open('lastid.txt', 'r')
-    lastId = wf_last.read()
-    wf_last.close()
+    try:
+        wf_last = open('lastid.txt', 'r')
+        lastId = wf_last.read()
+        wf_last.close()
+    except:
+        lastId = '776465144'
 
     wf = open('zhihu.txt','a+')
     domain = 'http://www.zhihu.com/question/'
