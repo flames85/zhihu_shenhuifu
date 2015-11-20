@@ -10,10 +10,12 @@ import time
 from datetime import datetime
 import math
 import sys
+#from PIL import Image
+import os
+import commands
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
-
 
 def getPage(url):
     try:
@@ -46,12 +48,17 @@ def getArticle(url):
     for i in xrange(len(item)):
         one_item = item[i]
         # answer
-#answer = one_item.find('div',{'class':'zh-summary summary clearfix'}).get_text().strip()
-        answer = one_item.find('div',{'class':'zm-editable-content clearfix'}).get_text().strip()
+        tmp = one_item.find('div',{'class':'zm-editable-content clearfix'})
+        answer = tmp.get_text().strip()
         answer = formatStr(answer)
-        ans_len = len(answer)
-#if ans_len > 100:
-#            answer = answer[0:100]
+        ans_len = len(answer) 
+
+        # img
+        tmp = tmp.find('img')
+        imgUrl = ''
+        if tmp != None:
+            imgUrl = tmp['src']
+
         # vote
         tmp = one_item.find('div',{'class':'zm-votebar'})
         tmp = tmp.find('button',{'class':'up '})
@@ -64,7 +71,7 @@ def getArticle(url):
         if max_score < score:
             max_score = score
             max_score_index = i
-            out = [title, answer, str(ans_len), vote, url]
+            out = [title, answer, str(ans_len), vote, url, imgUrl]
 
     if max_score == 0.0:
         return None
@@ -108,18 +115,9 @@ def getQuestions(start,offset='20'):
     lastId = items[-1].get('id').split('-')[1]
     return questions,lastId
 
-def cursor(bFirst):
-    def wait():
-        raw_input(">")
-    def noWait():
-        print ">"
-
-    if bFirst == True:
-        return noWait
-    else:
-        return wait
-    
 def craw():
+    exitCode,output = commands.getstatusoutput('date')
+    print "开始阅读:",output
     # 1st flag
     bFirst = True
     # load last-id
@@ -130,6 +128,7 @@ def craw():
     except:
         lastId = '776465144'
 
+    bPreview = False
     wf = open('zhihu.txt','a+')
     domain = 'http://www.zhihu.com/question/'
     for i in xrange(10000):
@@ -147,21 +146,42 @@ def craw():
             except:
                 continue
             # write zhihu.txt
+            wf.write(lastId)
+            wf.write('\t')
             for j in xrange(len(out)):
                 each = out[j]
                 wf.write(each)
                 wf.write('\t')
             wf.write('\n')
+
             # show
             if bFirst == True:
                 print ">"
                 bFirst = False
             else:
                 raw_input(">")
+
             print "question:",out[0]
             print "answer  :",out[1]
             print "vote    :",out[3]
-            print "url     :",out[4]
+            imgUrl = out[5]
+            if len(imgUrl) != 0:
+                # img: save&preview file
+                print "url     :",out[4],"(",imgUrl,")"
+                urlFile = urllib2.urlopen(imgUrl)  
+                imgData = urlFile.read()
+                imgFile = file('preview.jpg',"wb")  
+                imgFile.write(imgData)
+                imgFile.close() 
+                os.system('open -a Preview preview.jpg&')
+                bPreview = True
+            else:
+                print "url     :",out[4]
+                # img: 杀掉之前Preview
+                if bPreview == True:
+                    os.system('killall Preview')
+                    bPreview = False
+
     wf.close()
 if __name__ == '__main__':
     craw()
