@@ -17,6 +17,11 @@ import commands
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
+# 0 : 不显示图片
+# 1 : 以Preview显示图片(mac)
+# 2 : 以img2txt.py显示图片
+PREVIEW_MODE = 0
+
 def getPage(url):
     try:
         web = urllib.urlopen(url)
@@ -128,7 +133,9 @@ def craw():
     except:
         lastId = '776465144'
 
-    bPreview = False
+    if PREVIEW_MODE == 1:
+        bPreview = False
+
     wf = open('zhihu.txt','a+')
     domain = 'http://www.zhihu.com/question/'
     for i in xrange(10000):
@@ -163,24 +170,30 @@ def craw():
 
             print "question:",out[0]
             print "answer  :",out[1]
-            print "vote    :",out[3]
             imgUrl = out[5]
             if len(imgUrl) != 0:
                 # img: save&preview file
-                print "url     :",out[4],"(",imgUrl,")"
                 urlFile = urllib2.urlopen(imgUrl)  
                 imgData = urlFile.read()
                 imgFile = file('preview.jpg',"wb")  
                 imgFile.write(imgData)
                 imgFile.close() 
-                os.system('open -a Preview preview.jpg&')
-                bPreview = True
+                
+                if PREVIEW_MODE == 1:
+                    os.system('open -a Preview preview.jpg&')
+                    bPreview = True
+                elif PREVIEW_MODE == 2:
+                    os.system('python img2txt.py preview.jpg --ansi')
+                print "vote    :",out[3]
+                print "url     :",out[4],"(",imgUrl,")"
             else:
-                print "url     :",out[4]
                 # img: 杀掉之前Preview
-                if bPreview == True:
-                    os.system('killall Preview')
-                    bPreview = False
+                if PREVIEW_MODE == 1:
+                    if bPreview == True:
+                        os.system('killall Preview')
+                        bPreview = False
+                print "vote    :",out[3]
+                print "url     :",out[4]
 
     wf.close()
 if __name__ == '__main__':
