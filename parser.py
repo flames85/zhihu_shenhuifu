@@ -46,7 +46,8 @@ def getArticle(url):
     for i in xrange(len(item)):
         one_item = item[i]
         # answer
-        answer = one_item.find('div',{'class':'zh-summary summary clearfix'}).get_text().strip()
+#answer = one_item.find('div',{'class':'zh-summary summary clearfix'}).get_text().strip()
+        answer = one_item.find('div',{'class':'zm-editable-content clearfix'}).get_text().strip()
         answer = formatStr(answer)
         ans_len = len(answer)
 #if ans_len > 100:
@@ -57,7 +58,9 @@ def getArticle(url):
         vote = tmp.find('span',{'class':'count'}).get_text().strip()
         # score
         i_vote = int(vote);
-        score = (i_vote) / (5 + ans_len*ans_len/10)
+        if i_vote <= 1: # 可更改处:点赞数小于2我们就不看了
+            continue
+        score = (i_vote) / (5 + ans_len*ans_len/10) # 可更改处:分数计算公式
         if max_score < score:
             max_score = score
             max_score_index = i
@@ -83,7 +86,8 @@ def getQuestions(start,offset='20'):
     "Host":"www.zhihu.com",
     "Origin":"http://www.zhihu.com",
     "Referer":"http://www.zhihu.com/log/questions",
-    "User-Agent":"Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36",
+#"User-Agent":"Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36",
+    "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/601.1.56 (KHTML, like Gecko) Version/9.0 Safari/601.1.56",
     "X-Requested-With":"XMLHttpRequest"
     }
 
@@ -103,8 +107,21 @@ def getQuestions(start,offset='20'):
         questions.append(url)
     lastId = items[-1].get('id').split('-')[1]
     return questions,lastId
+
+def cursor(bFirst):
+    def wait():
+        raw_input(">")
+    def noWait():
+        print ">"
+
+    if bFirst == True:
+        return noWait
+    else:
+        return wait
     
 def craw():
+    # 1st flag
+    bFirst = True
     # load last-id
     try:
         wf_last = open('lastid.txt', 'r')
@@ -121,7 +138,7 @@ def craw():
         wf_last.write(lastId)
         wf_last.close()
         ques,lastId = getQuestions(lastId)
-
+        # loop
         for q in ques:
             try:
                 out = getArticle(domain+q)
@@ -129,16 +146,22 @@ def craw():
                     continue
             except:
                 continue
+            # write zhihu.txt
             for j in xrange(len(out)):
                 each = out[j]
                 wf.write(each)
                 wf.write('\t')
             wf.write('\n')
-            raw_input(">")
-            print "title :",out[0]
-            print "answer:",out[1]
-            print "vote  :",out[3]
-            print "url   :",out[4]
+            # show
+            if bFirst == True:
+                print ">"
+                bFirst = False
+            else:
+                raw_input(">")
+            print "question:",out[0]
+            print "answer  :",out[1]
+            print "vote    :",out[3]
+            print "url     :",out[4]
     wf.close()
 if __name__ == '__main__':
     craw()
