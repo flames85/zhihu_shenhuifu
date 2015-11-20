@@ -20,7 +20,7 @@ sys.setdefaultencoding("utf-8")
 # 0 : 不显示图片
 # 1 : 以Preview显示图片(mac)
 # 2 : 以img2txt.py显示图片
-PREVIEW_MODE = 0
+PREVIEW_MODE = 2
 
 def getPage(url):
     try:
