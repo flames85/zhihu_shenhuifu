@@ -20,7 +20,7 @@ sys.setdefaultencoding("utf-8")
 # 0 : 不显示图片
 # 1 : 以Preview显示图片(mac)
 # 2 : 以img2txt.py显示图片
-PREVIEW_MODE = 2
+PREVIEW_MODE = 0
 
 def getPage(url):
     try:
@@ -35,12 +35,21 @@ def formatStr(s):
     s = s.replace('\n',' ').replace('\t',' ')
     return s.strip()
 
+def doFilter(title):
+    if title.find('我是歌手') < 0:
+        return True
+    return False        
+
 def getArticle(url):
     page = getPage(url)
     pageSoup = BeautifulSoup(page, "html.parser")
     title = str(pageSoup.title).replace('<title>','').replace('</title>','').strip()
     # title
     title = formatStr(title)
+
+    if doFilter(title) == False:
+        return None
+
     # all answers
     item = pageSoup.find_all('div',{'class':'zm-item-answer'})
     # if no answer
@@ -89,23 +98,24 @@ def getQuestions(start,offset='20'):
     #urllib2.install_opener(opener)
 
     header = {"Accept":"*/*",
-    "Accept-Encoding":"gbk,utf-8,gzip,deflate,sdch",
-    "Accept-Language":"zh-CN,zh;q=0.8,en;q=0.6",
+    "Accept-Encoding":"gzip, deflate",
+    "Accept-Language":"zh-cn",
     "Connection":"keep-alive",
+    "Cache-Control":"max-age=0",
     "Content-Length":"64",
     "Content-Type":"application/x-www-form-urlencoded; charset=utf-8",
-    "Cookie":"_xsrf=e4cce6987b3b8ed8efb0d08937f7dcdf; _za=d9d43b7c-a7ef-4cd4-ae9d-8ffbb45ff81f; __utma=51854390.1328087801.1447661802.1447820210.1447824146.5; __utmc=51854390; __utmv=51854390.100-1|2=registration_date=20130730=1^3=entry_date=20130730=1; __utmz=51854390.1447661802.1.1.utmcsr=zhihu.com|utmccn=(referral)|utmcmd=referral|utmcct=/explore; cap_id=\"ODU0YzQ3NGFmMWE5NDRkZDk3NjA5MjI1MWQ3NDBlZWM=|1447048958|396aa3785130e12bacdb3522b7f75d951d198406\"; q_c1=2bc3ba3a28ba4102b3361d57f30aa49a|1445242349000|1445242349000; z_c0=\"QUFCQURyTWNBQUFYQUFBQVlRSlZUUTdFWjFic1ZZMGNkVVNrN28zT1dINHdqY3ItRnJTNldnPT0=|1447048974|6aad3ced89104407ad4f313d4f6d1734504e574f\"",
+    "Cookie":"_xsrf=cb74e03151773f37796cb6197ecab68a; _za=d9d43b7c-a7ef-4cd4-ae9d-8ffbb45ff81f; __utma=51854390.52297712.1448859266.1448870744.1449715998.3; __utmc=51854390; __utmv=51854390.100-1|2=registration_date=20130730=1^3=entry_date=20130730=1; __utmz=51854390.1448859266.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); cap_id=\"NmU1NzEyNTFmZWY5NGMzZmEwY2RkODdlMGJmYjFmYjU=|1449715996|7af54553b9217fbf87ffe2fca8c855e8450b2abd\"; n_c=1; q_c1=2bc3ba3a28ba4102b3361d57f30aa49a|1447896736000|1445242349000; z_c0=\"QUFCQURyTWNBQUFYQUFBQVlRSlZUWU4ya0ZaNVFOX2VKa19mN2I3dzBLZERMdlBFQkF3ZWZnPT0=|1449716099|411c3bc9f554b75d4a87a5acd676c037ba3334ef\"",
     "Host":"www.zhihu.com",
     "Origin":"http://www.zhihu.com",
     "Referer":"http://www.zhihu.com/log/questions",
-#"User-Agent":"Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36",
     "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/601.1.56 (KHTML, like Gecko) Version/9.0 Safari/601.1.56",
+    "DNT":"1",
     "X-Requested-With":"XMLHttpRequest"
     }
 
     parms = {'start':start,
             'offset':offset,
-            '_xsrf':'e4cce6987b3b8ed8efb0d08937f7dcdf'}
+            '_xsrf':'cb74e03151773f37796cb6197ecab68a'}
     url = 'http://www.zhihu.com/log/questions'
     req = urllib2.Request(url,headers=header,data=urllib.urlencode(parms))
     content = urllib2.urlopen( req ).read()
