@@ -22,9 +22,6 @@ sys.setdefaultencoding("utf-8")
 # 2 : 以img2txt.py显示图片
 PREVIEW_MODE = 0
 
-xsrf='5a7c7a824d663fdc9ee8bba4ebe740fd'
-z_c0='\"QUFCQURyTWNBQUFYQUFBQVlRSlZUVjl4SEZmWFNpOG1ELS1RQzI5ejFpQVU0VmNIRVl5TGdBPT0=|1458889823|f6c75e16cf8903e7784b0fe2ddec7e56240ff3ec\"'
-
 def getPage(url):
     try:
         web = urllib.urlopen(url)
@@ -100,11 +97,6 @@ def getQuestions(start,offset='20'):
     #opener = urllib2.build_opener(cookies)
     #urllib2.install_opener(opener)
 
-
-    format = "_xsrf=%s;z_c0=%s"
-    values = (xsrf, z_c0)
-    cookie = format % values
-
     header = {"Accept":"*/*",
     "Accept-Encoding":"gzip, deflate",
     "Accept-Language":"zh-cn",
@@ -112,7 +104,7 @@ def getQuestions(start,offset='20'):
     "Cache-Control":"max-age=0",
     "Content-Length":"64",
     "Content-Type":"application/x-www-form-urlencoded; charset=utf-8",
-    "Cookie":cookie,
+    "Cookie":"_xsrf=5a7c7a824d663fdc9ee8bba4ebe740fd; _za=d9d43b7c-a7ef-4cd4-ae9d-8ffbb45ff81f; __utma=51854390.52297712.1448859266.1460426234.1460448861.2; __utmc=51854390; __utmv=51854390.100-1|2=registration_date=20130730=1^3=entry_date=20130730=1; __utmz=51854390.1460448861.2.2.utmcsr=baidu|utmccn=(organic)|utmcmd=organic; cap_id=\"MTY3NzVhYzIxNzJmNDJkMGEzZDhkYjliZGQ2NjYxN2U=|1458889818|519a7547f65209e7a707c9055da7df36ec7c66a7\"; n_c=1; q_c1=2bc3ba3a28ba4102b3361d57f30aa49a|1459234883000|1445242349000; z_c0=\"QUFCQURyTWNBQUFYQUFBQVlRSlZUVjl4SEZmWFNpOG1ELS1RQzI5ejFpQVU0VmNIRVl5TGdBPT0=|1458889823|f6c75e16cf8903e7784b0fe2ddec7e56240ff3ec\"",
     "Host":"www.zhihu.com",
     "Origin":"http://www.zhihu.com",
     "Referer":"http://www.zhihu.com/log/questions",
@@ -123,7 +115,7 @@ def getQuestions(start,offset='20'):
 
     parms = {'start':start,
             'offset':offset,
-            '_xsrf':xsrf}
+            '_xsrf':'5a7c7a824d663fdc9ee8bba4ebe740fd'}
     url = 'http://www.zhihu.com/log/questions'
     req = urllib2.Request(url,headers=header,data=urllib.urlencode(parms))
     content = urllib2.urlopen( req ).read()
